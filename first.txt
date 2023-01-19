@@ -1,0 +1,82 @@
+1. Create IAM user attach user to a group with create a policy with just s3 read
+access. Attach the policy to the group.
+
+-> Created user called-assignment1
+
+    Created group called-assignemntgroup - with policy AmazonS3ReadOnlyAccess which gives        
+    only S3 read only access.
+ 
+    Added user assignment1 to assignemntgroup
+
+2. Create a role which has read access to ec2 resources. Using aws cli assume the
+   role and list out the ec2 instances
+
+-> Created a role named-assign_ec2 with AmazonEC2ReadOnlyAccess which gives only ec2 read only  access.
+   
+   On CLI using aws configure - configured the aws with 
+              -AWS Access Key ID
+              -AWS Secret Access Key
+              -Default region name 
+              -Default output format
+   
+    Using aws ec2 describe-instances which gives the description of the instances
+
+    In order to get the name of the instance from the description i used-
+    -aws ec2 describe-instances --output table --query 'Reservations[].Instances[].Tags[?Key==`Name`].Value',
+     name of the instance
+    -------------------
+|DescribeInstances|
++-----------------+
+|  assignment     |
++-----------------+
+
+
+3. Create an IAM role for account A which has access to EC2 and try to use that IAM role in account B using STS, try to list running EC2 instances in account A in AWS cli.
+
+->  created a role -crossaccount with assume role-
+             {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "sts:*",
+            "Resource": "arn:aws:iam::269764929305:role/ec2_read_access_rakshit"
+        }
+
+    using aws sts assume-role to assume role-
+    -aws sts assume-role --role-arn "arn:aws:iam::269764929305:role/ec2_read_access_rakshit" --role-session-name   "readec2"
+
+    - we get temporary credentials
+{
+    "Credentials": {
+        "AccessKeyId": "ASIAT5TZ6E4M4NYX7RPO",
+        "SecretAccessKey": "CFoy7Hhd7GLJ4/0hp8X3PSmxM2dA6Zn4FlJmSWgv",
+        "SessionToken": "IQoJb3JpZ2luX2VjEPT//////////wEaCXVzLWVhc3QtMSJHMEUCIQDn0fUGOJR1NJVlf0oldgDSmDcmkGQK386X9PG7jW2b3wIgI5fVUCDEbvyDV/N7SWKjOK+pFYu9ckSGkL/NlPihriMqlAIIXRAAGgwyNjk3NjQ5MjkzMDUiDCRLSI/CdNj9NQqQ4SrxAcvVxdReQBTp5fPlaw+JmcH2+HpVS8Qk4mFYnPIR3rnkeexiXuX+16vc7iOjCGXvh/0Y6rVa9rISdybFgKvBUB1Nc48E+Z3CNF1sxFgQP3R0dOyc1fV8ZLgvgIQ9tkvSH7IaubUQaQFFi7AlEQlnw2h6L4yG32MTXPKZ3J7uFUbxL3/tT3vxUiP3vkdKDIsdfihUorChMZSyTI64W598XbrmhfPygNqiU6Q1EjL30LoKQxnK3NsdBp/KilHNCWVuPwTJNJCLySNZQRT0LhxbgmZUtDt4rPdO1guJTE9sR9aNsleumorW8p21E9JbqcbxIeswsbKfngY6nQHhNcJZUcYvHtVs/9DoAARxwHuMr/QYZfnZvbC98Z+P8IXkjg58j2n7Oe2todGtagZDwB+A3xPRphDAL/7xedKT+hwq2UlEwPLqNcYYixWbR1iBeT+S/Q0R8oN5DiqcCEy4Jgd72T2dJUTpT0GbI68dDxz2OKhsdfmauOx6iJ4jkKh54Xkf4aC33GD/FobRItNCxSYsU3R87RdYRhbM",
+        "Expiration": "2023-01-18T12:34:09+00:00"
+    },
+    "AssumedRoleUser": {        "AssumedRoleId": "AROAT5TZ6E4M4NDLKTMJM:readec2",        "Arn": "arn:aws:sts::269764929305:assumed-role/ec2_read_access_rakshit/readec2"    }}
+
+    - then using export- export AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN 
+
+    -aws ec2 describe-instances  --query "Reservations[*].Instances[*].{PublicIP:PublicIpAddress,Name:Tags[?Key=='Name']|[0].Value,Status:State.Name}"  --filters Name=instance-state-name,Values=running --output table
+    ---------------------------------------------
+|             DescribeInstances            |
++-----------+------------------+-----------+
+|   Name    |    PublicIP      |  Status   |
++-----------+------------------+-----------+
+|  fsddfsgdd|  54.157.185.173  |  running  |
++-----------+------------------+-----------+
+
+            
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
