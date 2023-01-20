@@ -65,6 +65,12 @@ access. Attach the policy to the group.
 |  fsddfsgdd|  54.157.185.173  |  running  |
 +-----------+------------------+-----------+
 
+4. Create instance IAM profile and attach to instance
+ -> created IAM profile- assign_ec2 
+    created instance called try of instance type-t2.micro 
+    select the instance and went to actions ,clicked on security ,selected modify IAM role ,then selected the 
+    assign_ec2 role 
+
             
    
 
