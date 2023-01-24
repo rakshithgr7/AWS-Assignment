@@ -1,0 +1,12 @@
+Using AWS CLI
+
+a. Create a s3 bucket with your name
+   ->aws s3api create-bucket  --bucket rakshithdg  --region us-east-1
+
+b. Enable s3 versioning
+   -> s3api put-bucket-versioning --bucket rakshithdg --versioning-configuration Status=Enabled
+
+
+
+d. List out all the versions of the file
+     aws s3api list-object-versions --bucket rakshithdg --prefix Document.docx --query "Versions[].[Owner.DisplayName,VersionId]"
