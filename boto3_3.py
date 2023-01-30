@@ -9,9 +9,11 @@ start=datetime.datetime.now()
 #s3.Object('rakshithdg', '104861968_933.pdf').upload_file(r"C:\Users\Rraks\boto\104861968_933.pdf")
 with open(r"C:\Users\Rraks\boto\Screenshot(1).png","rb") as f:
             s4.upload_fileobj(f, "rakshithdg", "now1.pdf")
+#upload_file/upload_fileobj methods take care of the things you're looking for (i.e they wait for completion of object/file uploading).
 end=datetime.datetime.now()
 print(end-start)
- 
+
+
 # o=s4.head_object(rakshithdg,104861968_933.pdf)
 # print(o["LastModified"])
 
