@@ -1,0 +1,69 @@
+ 1. Create a cf template which does
+    a. Create a s3 bucket , name parameter should be there
+    b. Make s3 transfer acceleration user provided value (true/false)
+    c. Add tags name- your name
+    d. Setup s3 versioning and access policy as described in previous S3 section
+
+ Resources:
+  S3B3SPQ:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "Rakshith7866"
+      AccessControl: PublicRead
+      AccelerateConfiguration:
+         AccelerationStatus: Enabled
+      VersioningConfiguration: 
+         Status: Enabled
+
+      Tags: 
+        - Key: "name"
+          Value: "rakshith"
+
+  
+    2. Execute the same cf-template using aws cli
+       -> aws cloudformation deploy --template-file OneDrive\Desktop\assignment\aws\cloudformation\cf2.yaml --stack-name yuitre
+ 
+    3. How do we make resource group execution conditional ?
+
+
+    Parameters:
+
+  s3bucketname: 
+    Description: name of the s3 bucket 
+    Type: String
+ 
+  versioning:
+   
+    Type: String
+    AllowedValues: [True,False]
+
+  # Environment:
+    
+  #   Type: String
+  #   AllowedValues: [Dev,QA,Prod]
+    
+
+# Mappings:
+#   s3versioning:
+#     Dev: 
+#       Versioning: Suspended
+#     QA: 
+#       Versioning: Suspended
+#     Prod: 
+#       Versioning: Enabled
+
+
+Conditions: 
+  isenabled: !Equals [!Ref versioning, True]
+    
+Resources: 
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Ref s3bucketname
+      VersioningConfiguration:
+        Status: !If [isenabled ,Enabled,Suspended]
+        # !FindInMap [ s3versioning, !Ref Environment , Versioning]
+  
+
+      
