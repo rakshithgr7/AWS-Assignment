@@ -1,0 +1,32 @@
+sudo service nginx start
+
+sudo service nginx status
+
+
+sudo service nginx stop
+Active: inactive (dead)
+
+
+ALB-Application Load Balancer-
+ - first created 2 instances
+
+-then created Application load balancer
+   -Scheme=Internet-facing
+   -IP address type=IPv4
+   -Mappings- selected all
+   - created Security group-demosgloadbalancer - which allows all http requests inbound
+   -Listeners and routing - created Create target group-demogrp - of instances-1 and 2
+    the created load balancer
+
+   then got this dns- demoalb-1343389370.us-east-1.elb.amazonaws.com
+
+ASG-Autoscaling Groups
+ click on asg 
+ -Create a launch template-demotemp
+ - select all the instance settings for the asg to create the instances when needed
+ -Choose instance launch options
+ -Network->Availability Zones and subnets- select the AZ's
+ - configure-Load balancing
+ Configure group size and scaling policies-Specify the size of the Auto Scaling group by 
+ changing the desired capacity. You can also specify minimum and maximum capacity limits. 
+ Your desired capacity must be within the limit range
