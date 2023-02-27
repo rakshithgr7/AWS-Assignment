@@ -1,0 +1,77 @@
+VPC
+
+->created VPCdemo VPC with CIDR range-	10.0.0.0/16
+
+->then created 4 subnets- 2 private private_A-10.0.16.0/20  , private_B-10.0.32.0/20
+                        2 public-public-A-10.0.0.0/24 public-B-10.0.1.0/24
+-> then created ec2 instance ,  from network settings- 
+    selected  the vpc - vpcdemo  and selected public subnet-a( make changes(enable it) to auto assign public ip from submask settings), 
+    and created the instance
+
+-> then tried connecting to the instance , but it throws a error saying unable to connect- instance netwrok settings are correct
+-> this error is because  there is no internet access
+-> so here we need to use internet gateway
+-> created internet gateway called demo igw and attach it to vpc
+-> then again if we try connecting to the instance- again we get the error
+->even though we have the IGW , but there are no routes defined
+-> so created new route table called publicroute, privateroute - assign it to our vpc
+-> then edit publicroute->edit subnet associations->add public A,B subnets 
+->then added route in publicroute-A- with destination 0.0.0.0/0 and target as IGW
+-> now if we try connecting the instance, we can connect to the internet
+
+
+
+------------------------------------trying bastion host-------------------------------------
+
+created new instance named-private_instance
+with demo_vpc and private a subnet
+making source type-custom ,and source - security group of public ec2 instance- 
+so that it can ssh to the private ec2(bastion host)
+
+so now from bastion host we can try  ssh to the private ec2 using its private ip address
+- ssh ec2-user@10.0.29.104
+-The authenticity of host '10.0.29.104 (10.0.29.104)' can't be established
+-Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+-so creating key file  called assignemt.pem -vi assignment.pem - added the private key- saved it
+- then tried ssh ec2-user@10.0.29.104 -i assignment.pem
+-WARNING: UNPROTECTED PRIVATE KEY FILE! 
+-chmod 0400 assignment.pem
+-ssh ec2-user@10.0.29.104 -i assignment.pem
+- now we are ssh-ed into private ec2 instance 
+
+-----------------------------------------NAT gateway--------------------------------------------------
+ created NAT gateway demo-NAT,  selcted public subnet -a, connectivity type- public and allocated elastic ip.
+ then edited the rooute tables for private subnet, destination-0.0.0.0/0, target-nat-02d25d58e64b95970(nat gateway)
+ -----------------------------------------------------------------------
+ -installed mysql server on private instance
+ -sudo amazon-linux-extras install epel -y 
+    sudo yum install https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+    yum install mysql-server -y
+    systemctl start mysqld 
+    cat /var/log/mysql.log | grep "A temporary password" 
+    mysql_secure_installation
+-edited the phpmyadmin file with ->
+  $cfg['Servers'][$i]['auth_type'] = 'config';
+/* Server parameters */
+$cfg['Servers'][$i]['host'] = '10.0.29.104:3306';
+$cfg['Servers'][$i]['user'] = 'root';
+$cfg['Servers'][$i]['password'] = 'Poiuytrewq7!;
+$cfg['Servers'][$i]['compress'] = false;
+$cfg['Servers'][$i]['AllowNoPassword'] = true;
+
+----------------------------------------------------------------------------
+
+-tried connecting to phpmyadmin-http://43.206.226.53/phpMyAdmin/- throws a error saying that-10.0.0.72 
+    is not allowed to connect-
+- so creating the user with - USE mysql;
+CREATE USER 'root'@'10.0.0.72' IDENTIFIED BY 'Poiuytrewq7!';
+GRANT ALL ON *.* TO 'root'@'10.0.0.72';
+FLUSH PRIVILEGES;
+- now again tried to connect and error-: The server requested authentication method unknown to the client
+- so we are letting mysql server know that the authentication type is password based.
+-vim  /etc/my.cnf - edited this file -> uncommented the line default-authentication-plugin=mysql_native_password
+ and then saved it
+ 
+- so we are altering the existing user to be identified as passwprd based authentication -
+alter user 'root'@'10.0.0.72' identified with mysql_native_password by 'Poiuytrewq7!';
+
